@@ -13,3 +13,8 @@ add_executable(vanilla-options
     src/MonteCarlo.cpp
     src/EulerMonteCarlo.cpp 
 )
+
+add_executable(consistency-tests 
+    tests/ConsistencyTests.cpp
+    src/Utils.cpp 
+    src/BlackScholes.cpp)
