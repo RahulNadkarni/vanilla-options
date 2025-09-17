@@ -1,5 +1,5 @@
-#include "./include/BlackScholes.h"
-#include "./include/Utils.h"
+#include "BlackScholes.h"
+#include "Utils.h"
 #include <cmath>
 
 double forward_price(double S, double K, double r, double d, double T) {

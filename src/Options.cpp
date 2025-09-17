@@ -1,4 +1,4 @@
-#include "./include/Options.h"
+#include "Options.h"
 
 CallOption::CallOption(double K_, double T_) {
     K = K_; 

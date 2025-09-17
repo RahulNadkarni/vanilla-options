@@ -1,0 +1,3 @@
+/Users/rahulsmacbook/Documents/GitHub/vanilla-options/build/CMakeFiles/vanilla-options.dir
+/Users/rahulsmacbook/Documents/GitHub/vanilla-options/build/CMakeFiles/edit_cache.dir
+/Users/rahulsmacbook/Documents/GitHub/vanilla-options/build/CMakeFiles/rebuild_cache.dir

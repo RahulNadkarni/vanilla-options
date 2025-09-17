@@ -1,4 +1,4 @@
-#include "./include/Utils.h"
+#include "Utils.h"
 #include <cmath>
 
 double norm_pdf(double x){

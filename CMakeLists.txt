@@ -1,26 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 project(VanillaOptions)
 
-set (CMAKE_CXX_STANDARD 17)
-set (CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 17)
 
-include_directories(include)
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
-set(SOURCES
-    src/BlackScholes.cpp
-    src/Options.cpp 
-    src/MonteCarlo.cpp 
-    src/EulerMonteCarlo.cpp 
+add_executable(vanilla-options
+    src/main.cpp
     src/Utils.cpp
-    )
-
-add_executable(consistency_tests
-    tests/ConsistencyTests.cpp
-    ${SOURCES}
-    )
-
-add_executable(montecarlo_tests 
-    tests/MonteCarloComp.cpp
-    ${SOURCES}
-    )
-    
+    src/BlackScholes.cpp
+    src/Options.cpp
+    src/MonteCarlo.cpp
+)
