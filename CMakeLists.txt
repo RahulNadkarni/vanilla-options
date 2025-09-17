@@ -11,4 +11,5 @@ add_executable(vanilla-options
     src/BlackScholes.cpp
     src/Options.cpp
     src/MonteCarlo.cpp
+    src/EulerMonteCarlo.cpp 
 )

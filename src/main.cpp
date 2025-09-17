@@ -2,7 +2,7 @@
 #include "BlackScholes.h"
 #include "Options.h"
 #include "MonteCarlo.h"
-
+#include "EulerMonteCarlo.h"
 int main() { 
     double S = 100; 
     double K = 105; 
@@ -17,6 +17,9 @@ int main() {
     CallOption call(K , T); 
     MonteCarloEngine mc; 
     mc.simulate(call, S, r, d, vol, 100000); 
+
+    EulerMonteCarloEngine emc; 
+    emc.simulate(call, S, r, d, vol, 100000, 100); 
 
     return 0; 
 }
