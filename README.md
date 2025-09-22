@@ -11,7 +11,7 @@ It also includes:
 - Consistency tests to verify mathematical properties of the Black-Scholes model  
 - Monte Carlo comparisons to demonstrate convergence between simulation and formulas  
 
-The project is modular- option types, pricing methods, and random number generators can be extended without modifying the core engine.
+The project is modular — option types, pricing methods, and random number generators can be extended without modifying the core engine.
 
 ---
 
@@ -93,24 +93,45 @@ This is essential for **path-dependent options** (e.g., Asian options).
 
 ## Implementation
 
+### Directory Structure
+ project_root/
+├── CMakeLists.txt
+├── include/
+│ ├── BlackScholes.h
+│ ├── Options.h
+│ ├── MonteCarlo.h
+│ ├── EulerMonteCarlo.h
+│ └── Utils.h
+├── src/
+│ ├── main.cpp
+│ ├── BlackScholes.cpp
+│ ├── Options.cpp
+│ ├── MonteCarlo.cpp
+│ ├── EulerMonteCarlo.cpp
+│ └── Utils.cpp
+└── tests/
+├── ConsistencyTests.cpp
+└── MonteCarloComparison.cpp
+
+
 ### Key Components
-- `BlackScholes.*` -> closed-form formulas  
-- `Options.*` -> option payoff classes  
-- `MonteCarlo.*` -> terminal simulation engine  
-- `EulerMonteCarlo.*` -> pathwise simulation engine  
-- `Utils.*` -> random number generation  
-- `main.cpp` -> demo program  
-- `tests/` -> mathematical consistency + simulation vs formula convergence  
+- `BlackScholes.*` → closed-form formulas  
+- `Options.*` → option payoff classes  
+- `MonteCarlo.*` → terminal simulation engine  
+- `EulerMonteCarlo.*` → pathwise simulation engine  
+- `Utils.*` → random number generation  
+- `main.cpp` → demo program  
+- `tests/` → mathematical consistency + simulation vs formula convergence  
 
 ---
 
-## Running the Project
+## ▶️ Running the Project
 
 ### 1. Build
 ```bash
 mkdir build && cd build
 cmake ..
-make
+make 
 ```
 
 ### 2. Run Main Program 
@@ -123,12 +144,12 @@ make
 ```bash 
     ./consistency_tests
 ```
-- Checks:
-   - Put–call parity
-   - Call decreasing in strike
-   - Call increasing in volatility
-   - Convexity in strike
-   - Digital call + put = bond
+Checks:
+Put–call parity
+Call decreasing in strike
+Call increasing in volatility
+Convexity in strike
+Digital call + put = bond
 
 
 

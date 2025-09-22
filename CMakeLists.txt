@@ -5,16 +5,22 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-add_executable(vanilla-options
+# Main executable
+add_executable(vanilla_options
     src/main.cpp
-    src/Utils.cpp
     src/BlackScholes.cpp
     src/Options.cpp
     src/MonteCarlo.cpp
-    src/EulerMonteCarlo.cpp 
+    src/EulerMonteCarlo.cpp
+    src/Utils.cpp
+    src/Greeks.cpp
 )
 
-add_executable(consistency-tests 
+# Consistency tests
+add_executable(consistency_tests 
     tests/ConsistencyTests.cpp
     src/Utils.cpp 
-    src/BlackScholes.cpp)
+    src/BlackScholes.cpp
+    src/Options.cpp
+    src/Greeks.cpp
+)
