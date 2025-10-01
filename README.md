@@ -141,6 +141,30 @@ Steps:
 3. Discount and average.  
 4. Variance gives error bars (standard error ~ ![eq](https://latex.codecogs.com/png.latex?1/%5Csqrt%7BN%7D)).  
 
+#### Monte Carlo Optimization Techniques
+
+The implementation includes several advanced optimization techniques to improve accuracy and performance:
+
+**1. Antithetic Sampling**
+- **Principle**: Uses paired random numbers (Z, -Z) to reduce variance
+- **Benefit**: Typically reduces variance by 50-80% without additional computational cost
+- **Implementation**: Each simulation uses both Z and -Z, then averages the results
+
+**2. Control Variates**
+- **Principle**: Uses known expected values to reduce estimation error
+- **Control Variable**: Underlying asset price at maturity (known expectation)
+- **Formula**: `E[X] = E[X] - β(E[Y] - E[Y_known])` where β is the optimal coefficient
+- **Benefit**: Significant variance reduction when control variate is highly correlated
+
+**3. Parallel Processing**
+- **Implementation**: Uses OpenMP for multi-threaded simulation
+- **Benefit**: Near-linear speedup on multi-core systems
+- **Thread Safety**: Each thread uses independent random number generators
+
+**4. Combined Optimization**
+- **Approach**: Combines antithetic sampling with parallel processing
+- **Result**: Maximum performance improvement with maintained accuracy
+
 ---
 
 ### 6. Euler Discretization
@@ -158,12 +182,21 @@ This is essential for **path-dependent options** (e.g., Asian options).
 ### Key Components
 - `BlackScholes.*` → closed-form formulas  
 - `Options.*` → option payoff classes  
-- `MonteCarlo.*` → terminal simulation engine + Greeks calculators
+- `MonteCarlo.*` → terminal simulation engine + Greeks calculators + **optimized methods**
 - `EulerMonteCarlo.*` → pathwise simulation engine  
-- `Greeks.*` → analytical Greeks formulas  # NEW
+- `Greeks.*` → analytical Greeks formulas
 - `Utils.*` → random number generation  
-- `main.cpp` → demo program  
-- `tests/` → mathematical consistency + simulation vs formula convergence  
+- `main.cpp` → demo program with **performance comparisons**
+- `tests/` → mathematical consistency + simulation vs formula convergence
+
+### Optimization Features
+The `MonteCarlo.*` implementation includes:
+- **Standard Methods**: Basic Monte Carlo simulation and Greeks calculation
+- **Antithetic Sampling**: Variance reduction using paired random numbers
+- **Control Variates**: Error reduction using known expected values
+- **Parallel Processing**: Multi-threaded simulation with OpenMP
+- **Combined Optimization**: Antithetic + parallel for maximum performance
+- **Benchmarking**: Performance comparison tools  
 
 ### Greek Calculation Methods
 The project implements multiple approaches:
@@ -192,6 +225,13 @@ make
 ```bash
 ./vanilla_options
 ```
+
+**Output includes:**
+- Analytical Black-Scholes prices and Greeks
+- Standard Monte Carlo results
+- **Optimized Monte Carlo methods** (antithetic, control variates, parallel)
+- **Performance benchmarking** with timing comparisons
+- Greeks data exported to CSV for visualization
 
 ### 3. Run Consistency Checks
 ```bash

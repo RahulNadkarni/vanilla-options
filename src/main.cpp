@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 #include "BlackScholes.h"
 #include "Options.h"
 #include "MonteCarlo.h"
@@ -74,6 +75,76 @@ int main() {
     
     std::cout << "\nSaved results to greeks.csv (for graphing)" << std::endl;
     std::cout << "CSV includes both Monte Carlo and analytical Greeks for comparison" << std::endl;
+    
+    // ============ MONTE CARLO OPTIMIZATION DEMONSTRATION ============
+    // This section demonstrates the advanced Monte Carlo optimization techniques:
+    // 1. Antithetic Sampling: Reduces variance by using paired random numbers (Z, -Z)
+    // 2. Control Variates: Uses known expected values to reduce estimation error
+    // 3. Parallel Processing: Leverages OpenMP for multi-threaded simulations
+    // 4. Combined Optimization: Merges antithetic sampling with parallel processing
+    std::cout << "\n=== MONTE CARLO OPTIMIZATION DEMONSTRATION ===" << std::endl;
+    
+    int opt_nPaths = 100000;
+    std::cout << "\nTesting with " << opt_nPaths << " paths..." << std::endl;
+    
+    // Demonstrate individual optimization techniques
+    std::cout << "\n--- Individual Optimization Techniques ---" << std::endl;
+    
+    MonteCarloEngine mc_opt(42);
+    
+    // 1. Standard Monte Carlo - baseline implementation
+    std::cout << "\n1. Standard Monte Carlo:" << std::endl;
+    double standard_price = mc_opt.simulate(call, S, r, d, vol, opt_nPaths);
+    double standard_delta = mc_opt.delta_fd(call, S, r, d, vol, opt_nPaths, eps);
+    
+    // 2. Antithetic Sampling - variance reduction using paired random numbers (Z, -Z)
+    std::cout << "\n2. Antithetic Sampling:" << std::endl;
+    double antithetic_price = mc_opt.simulate_antithetic(call, S, r, d, vol, opt_nPaths);
+    double antithetic_delta = mc_opt.delta_fd_antithetic(call, S, r, d, vol, opt_nPaths, eps);
+    
+    // 3. Control Variates - error reduction using known expected values
+    std::cout << "\n3. Control Variates:" << std::endl;
+    double cv_price = mc_opt.simulate_control_variate(call, S, r, d, vol, opt_nPaths);
+    double cv_delta = mc_opt.delta_fd_control_variate(call, S, r, d, vol, opt_nPaths, eps);
+    
+    // 4. Parallel Processing - multi-threaded simulation using OpenMP
+    std::cout << "\n4. Parallel Processing:" << std::endl;
+    double parallel_price = mc_opt.simulate_parallel(call, S, r, d, vol, opt_nPaths);
+    double parallel_delta = mc_opt.delta_fd_parallel(call, S, r, d, vol, opt_nPaths, eps);
+    
+    // 5. Combined Optimization - antithetic sampling + parallel processing
+    std::cout << "\n5. Combined Optimization (Antithetic + Parallel):" << std::endl;
+    double optimized_price = mc_opt.simulate_optimized(call, S, r, d, vol, opt_nPaths);
+    double optimized_delta = mc_opt.delta_fd_optimized(call, S, r, d, vol, opt_nPaths, eps);
+    
+    // Display results comparison
+    std::cout << "\n--- Results Comparison ---" << std::endl;
+    std::cout << "Analytical BS Call Price: " << bs_call(S, K, r, d, T, vol) << std::endl;
+    std::cout << "Analytical BS Delta: " << bs_call_delta(S, K, r, d, T, vol) << std::endl;
+    std::cout << std::endl;
+    
+    std::cout << std::setw(25) << "Method" << std::setw(15) << "Price" << std::setw(15) << "Delta" << std::endl;
+    std::cout << std::string(55, '-') << std::endl;
+    std::cout << std::setw(25) << "Standard MC" << std::setw(15) << std::fixed << std::setprecision(6) << standard_price << std::setw(15) << standard_delta << std::endl;
+    std::cout << std::setw(25) << "Antithetic" << std::setw(15) << antithetic_price << std::setw(15) << antithetic_delta << std::endl;
+    std::cout << std::setw(25) << "Control Variate" << std::setw(15) << cv_price << std::setw(15) << cv_delta << std::endl;
+    std::cout << std::setw(25) << "Parallel" << std::setw(15) << parallel_price << std::setw(15) << parallel_delta << std::endl;
+    std::cout << std::setw(25) << "Optimized" << std::setw(15) << optimized_price << std::setw(15) << optimized_delta << std::endl;
+    
+    // Performance benchmarking - comprehensive timing and accuracy comparison
+    std::cout << "\n--- Performance Benchmarking ---" << std::endl;
+    int benchmark_paths = 500000;
+    std::cout << "Running performance benchmark with " << benchmark_paths << " paths..." << std::endl;
+    
+    MonteCarloEngine mc_bench(42);
+    mc_bench.compare_methods(call, S, r, d, vol, benchmark_paths);
+    
+    std::cout << "\n=== OPTIMIZATION SUMMARY ===" << std::endl;
+    std::cout << "1. Antithetic Sampling: Reduces variance by using paired random numbers" << std::endl;
+    std::cout << "2. Control Variates: Uses known expected values to reduce estimation error" << std::endl;
+    std::cout << "3. Parallel Processing: Leverages multiple CPU cores for faster computation" << std::endl;
+    std::cout << "4. Combined Optimization: Uses antithetic sampling with parallel processing" << std::endl;
+    std::cout << "\nThe optimized methods provide better accuracy and/or faster computation!" << std::endl;
     
     return 0;
 }
