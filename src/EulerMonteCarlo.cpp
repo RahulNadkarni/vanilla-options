@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include "EulerMonteCarlo.h"
 #include <cmath> 
 #include <iostream> 
@@ -23,8 +24,8 @@ double EulerMonteCarloEngine::simulate(const Option& opt, double S0, double r, d
     }
     double mean = sum / nPaths; 
     double var = (sumSq / nPaths) - (mean * mean); 
-    double stderr = std::sqrt(var/nPaths); 
+    double std_err = std::sqrt(var/nPaths); 
 
-    std::cout << "Euler MC Price: " << mean << " ± " << stderr << " (steps= " << nSteps <<")" <<std::endl; 
+    std::cout << "Euler MC Price: " << mean << " ± " << std_err << " (steps= " << nSteps <<")" <<std::endl; 
     return mean; 
 }

@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include "MonteCarlo.h"
 #include <cmath>
 #include <iostream>
@@ -22,8 +23,8 @@ double MonteCarloEngine::simulate(const Option& opt, double S0, double r, double
     
     double mean = sum / nPaths;
     double var = (sumSq / nPaths) - (mean * mean);
-    double stderr = std::sqrt(var / nPaths);
-    std::cout << "MC Price: " << mean << " ± " << stderr << std::endl;
+    double std_err = std::sqrt(var / nPaths);
+    std::cout << "MC Price: " << mean << " ± " << std_err << std::endl;
     return mean;
 }
 
@@ -244,8 +245,8 @@ double MonteCarloEngine::simulate_antithetic(const Option& opt, double S0, doubl
     
     double mean = sum / actualPaths;
     double var = (sumSq / actualPaths) - (mean * mean);
-    double stderr = std::sqrt(var / actualPaths);
-    std::cout << "MC Antithetic Price: " << mean << " ± " << stderr << std::endl;
+    double std_err = std::sqrt(var / actualPaths);
+    std::cout << "MC Antithetic Price: " << mean << " ± " << std_err << std::endl;
     return mean;
 }
 
@@ -507,8 +508,8 @@ double MonteCarloEngine::simulate_parallel(const Option& opt, double S0, double 
     
     double mean = sum / nPaths;
     double var = (sumSq / nPaths) - (mean * mean);
-    double stderr = std::sqrt(var / nPaths);
-    std::cout << "MC Parallel Price: " << mean << " ± " << stderr << " (threads=" << num_threads << ")" << std::endl;
+    double std_err = std::sqrt(var / nPaths);
+    std::cout << "MC Parallel Price: " << mean << " ± " << std_err << " (threads=" << num_threads << ")" << std::endl;
     return mean;
 }
 
@@ -613,8 +614,8 @@ double MonteCarloEngine::simulate_optimized(const Option& opt, double S0, double
     
     double mean = sum / actualPaths;
     double var = (sumSq / actualPaths) - (mean * mean);
-    double stderr = std::sqrt(var / actualPaths);
-    std::cout << "MC Optimized Price: " << mean << " ± " << stderr << " (antithetic+parallel, threads=" << num_threads << ")" << std::endl;
+    double std_err = std::sqrt(var / actualPaths);
+    std::cout << "MC Optimized Price: " << mean << " ± " << std_err << " (antithetic+parallel, threads=" << num_threads << ")" << std::endl;
     return mean;
 }
 
