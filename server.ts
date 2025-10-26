@@ -1,38 +1,42 @@
 // src/server.ts
-import express, { Request, Response } from 'express';
-import cors from 'cors';
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import { serve } from '@hono/node-server';
 import YahooFinance from 'yahoo-finance2';
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+const app = new Hono();
+const yahooFinance = new YahooFinance();
+app.use('*', cors());
 
-app.get('/api/historical/:ticker', async (req: Request, res: Response) => {
-  const ticker = req.params.ticker?.toUpperCase();
-  const range = Number(req.query.range) || 30;
+app.get('/api/historical/:ticker', async (c) => {
+  const ticker = c.req.param('ticker')?.toUpperCase();
+  const range = Number(c.req.query('range')) || 30;
 
   if (!ticker) {
-    return res.status(400).json({ error: 'Missing ticker symbol' });
+    return c.json({ error: 'Missing ticker symbol' }, 400);
   }
-
-  const yahooFinance = new YahooFinance();
 
   try {
     const now = new Date();
     const from = new Date(now.getTime() - range * 86400000);
-
     const result = await yahooFinance.chart(ticker, {
       period1: from,
       period2: now,
     });
-
-    console.log(result)
-    res.json(result);
+    
+    return c.json({
+      meta: result.meta,
+      quotes: result.quotes,
+    });
   } catch (err: any) {
     console.error('Fetch error:', err.message);
-    res.status(500).json({ error: 'Failed to fetch data', details: err.message });
+    return c.json({ error: 'Failed to fetch data', details: err.message }, 500);
   }
 });
 
-const PORT = Number(process.env.PORT) || 3001;
-app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
+const port = Number(process.env.PORT) || 3001;
+serve({ fetch: app.fetch, port });
+console.log(`✅ Server running on http://localhost:${port}`);
+
+// Run with:
+// npx hono run src/server.ts
