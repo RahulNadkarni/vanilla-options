@@ -38,6 +38,9 @@ add_executable(vanilla_options
     src/EulerMonteCarlo.cpp
     src/Utils.cpp
     src/Greeks.cpp
+    src/IVSolver.cpp
+    src/IVSurface.cpp
+    src/IVExporter.cpp
 )
 
 # Link OpenMP to the main executable for parallel Monte Carlo simulations
@@ -64,4 +67,19 @@ if(APPLE)
     target_compile_options(consistency_tests PRIVATE "-Xclang" "-fopenmp" "-I/usr/local/opt/libomp/include")
 else()
     target_link_libraries(consistency_tests OpenMP::OpenMP_CXX)
+endif()
+
+add_executable(iv_solver_cli
+    src/iv_cli.cpp
+    src/IVSolver.cpp
+    src/BlackScholes.cpp
+    src/Options.cpp
+    src/Utils.cpp
+)
+
+if(APPLE)
+    target_link_libraries(iv_solver_cli "/usr/local/opt/libomp/lib/libomp.dylib")
+    target_compile_options(iv_solver_cli PRIVATE "-Xclang" "-fopenmp" "-I/usr/local/opt/libomp/include")
+else()
+    target_link_libraries(iv_solver_cli OpenMP::OpenMP_CXX)
 endif()

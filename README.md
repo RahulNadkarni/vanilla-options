@@ -233,7 +233,12 @@ make
 - **Performance benchmarking** with timing comparisons
 - Greeks data exported to CSV for visualization
 
-### 3. Run Consistency Checks
+### 3. Build Implied Volatility CLI
+```bash
+cmake --build . --target iv_solver_cli
+```
+
+### 4. Run Consistency Checks
 ```bash
 ./consistency_tests
 ```
@@ -245,6 +250,33 @@ Call increasing in volatility
 Convexity in strike
 Digital call + put = bond
 
+
+## Integrated Web Application
+
+The repository bundles a web client and Node API that share the same implied volatility engine.
+
+### Prerequisites
+- Build directory containing `iv_solver_cli`
+- Node.js 18+
+
+### Setup
+```bash
+npm install
+```
+
+### Start the pricing API
+```bash
+npm run start
+```
+
+### Launch the web client
+```bash
+npm run dev
+```
+
+The front-end provides:
+- Historical price visualisation backed by the API
+- Implied volatility solver backed by the C++ executable
 
 ## Applications 
 

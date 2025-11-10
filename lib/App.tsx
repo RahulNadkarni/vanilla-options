@@ -10,6 +10,7 @@ import {
   Legend,
 } from 'recharts';
 import { fetchHistoricalData } from './historicalData';
+import { solveImpliedVolatility } from './impliedVol';
 
 interface Quote {
   date: string;
@@ -41,6 +42,18 @@ export default function App() {
     low: false,
     volume: false,
   });
+  const [ivInputs, setIvInputs] = useState({
+    marketPrice: '',
+    spot: '',
+    strike: '',
+    rate: '',
+    tenor: '',
+    dividend: '',
+    optionType: 'call' as 'call' | 'put',
+  });
+  const [ivLoading, setIvLoading] = useState(false);
+  const [ivError, setIvError] = useState('');
+  const [ivResult, setIvResult] = useState<number | null>(null);
 
   const handleLoadData = async () => {
     if (!ticker) return;
@@ -63,6 +76,14 @@ export default function App() {
       }));
 
       setData(formatted);
+      if (formatted.length > 0) {
+        const latest = formatted[formatted.length - 1];
+        setIvInputs((prev) => ({
+          ...prev,
+          spot: latest.close.toString(),
+          strike: latest.close.toString(),
+        }));
+      }
     } catch (e) {
       setError('Error loading data');
       console.error(e);
@@ -73,6 +94,64 @@ export default function App() {
 
   const toggleLine = (key: keyof typeof visibleLines) =>
     setVisibleLines((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  const handleIvChange = (key: keyof typeof ivInputs, value: string) => {
+    setIvInputs((prev) => ({
+      ...prev,
+      ...(key === 'optionType'
+        ? { optionType: value === 'put' ? 'put' : 'call' }
+        : { [key]: value }),
+    }));
+  };
+
+  const handleSolveIv = async () => {
+    setIvError('');
+    setIvResult(null);
+
+    const marketPrice = Number(ivInputs.marketPrice);
+    const spot = Number(ivInputs.spot);
+    const strike = Number(ivInputs.strike);
+    const rate = Number(ivInputs.rate);
+    const tenor = Number(ivInputs.tenor);
+    const dividend = Number(ivInputs.dividend || 0);
+
+    const coreValues = [marketPrice, spot, strike];
+    if (!coreValues.every((v) => Number.isFinite(v) && v > 0)) {
+      setIvError('Enter valid positive inputs');
+      return;
+    }
+    if (!Number.isFinite(tenor) || tenor <= 0) {
+      setIvError('Tenor must be positive');
+      return;
+    }
+    if (!Number.isFinite(rate)) {
+      setIvError('Enter a valid rate');
+      return;
+    }
+    if (!Number.isFinite(dividend) || dividend < 0) {
+      setIvError('Dividend must be zero or positive');
+      return;
+    }
+
+    try {
+      setIvLoading(true);
+      const response = await solveImpliedVolatility({
+        marketPrice,
+        spot,
+        strike,
+        rate,
+        tenor,
+        dividend,
+        optionType: ivInputs.optionType,
+        ticker: ticker || undefined,
+      });
+      setIvResult(response.impliedVol);
+    } catch (err) {
+      setIvError(err instanceof Error ? err.message : 'Failed to solve implied volatility');
+    } finally {
+      setIvLoading(false);
+    }
+  };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload || !payload.length) return null;
@@ -186,6 +265,92 @@ export default function App() {
         </div>
 
         {error && <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>}
+      </div>
+
+      <div
+        style={{
+          backgroundColor: 'white',
+          padding: '24px',
+          borderRadius: '12px',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+          marginBottom: '24px',
+        }}
+      >
+        <h2 style={{ marginBottom: '12px' }}>🧮 Implied Volatility Solver</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+          <input
+            type="number"
+            placeholder="Market Price"
+            value={ivInputs.marketPrice}
+            onChange={(e) => handleIvChange('marketPrice', e.target.value)}
+            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+          />
+          <input
+            type="number"
+            placeholder="Spot"
+            value={ivInputs.spot}
+            onChange={(e) => handleIvChange('spot', e.target.value)}
+            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+          />
+          <input
+            type="number"
+            placeholder="Strike"
+            value={ivInputs.strike}
+            onChange={(e) => handleIvChange('strike', e.target.value)}
+            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+          />
+          <input
+            type="number"
+            placeholder="Rate"
+            value={ivInputs.rate}
+            onChange={(e) => handleIvChange('rate', e.target.value)}
+            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+          />
+          <input
+            type="number"
+            placeholder="Tenor (years)"
+            value={ivInputs.tenor}
+            onChange={(e) => handleIvChange('tenor', e.target.value)}
+            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+          />
+          <input
+            type="number"
+            placeholder="Dividend"
+            value={ivInputs.dividend}
+            onChange={(e) => handleIvChange('dividend', e.target.value)}
+            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+          />
+          <select
+            value={ivInputs.optionType}
+            onChange={(e) => handleIvChange('optionType', e.target.value)}
+            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+          >
+            <option value="call">Call</option>
+            <option value="put">Put</option>
+          </select>
+        </div>
+        <button
+          onClick={handleSolveIv}
+          disabled={ivLoading}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: '#0f766e',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            fontWeight: 500,
+            cursor: 'pointer',
+            marginTop: '16px',
+          }}
+        >
+          {ivLoading ? 'Solving...' : 'Solve'}
+        </button>
+        {ivError && <div style={{ color: 'red', marginTop: '10px' }}>{ivError}</div>}
+        {ivResult !== null && (
+          <div style={{ marginTop: '12px', fontSize: '1.1rem' }}>
+            Implied volatility: <strong>{ivResult.toFixed(6)}</strong>
+          </div>
+        )}
       </div>
 
       {data.length > 0 && (
